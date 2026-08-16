@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goldenmuv KMS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://drive.google.com/drive/folders/16aPznLQzutd-z3jIolPgyfn3ZZUjdCU2?usp=sharing" target="_blank" class="logo">Goldenmuv <span>KMS</span></a>
+  <input id="searchBar" type="text" placeholder="Search documents..." />
+</header>
+
+<section class="quick-links">
+  <a href="https://drive.google.com/drive/folders/1Vsywoic9_209wm2H-4dVRm2xOQG9b1wl?usp=sharing" target="_blank" class="tile">
+    <span class="tile-icon">📁</span> Client Archives
+  </a>
+  <a href="https://drive.google.com/drive/folders/1nSSYxAl6ejtx4RtRtciQKyXOXOywjCJh?usp=drive_link" target="_blank" class="tile">
+    <span class="tile-icon">📚</span> Thematic Knowledge
+  </a>
+  <a href="https://drive.google.com/drive/folders/11PaQcyrYdNMJcCXUPOLlkIk1cdUHpLc-?usp=drive_link" target="_blank" class="tile">
+    <span class="tile-icon">🗂</span> Templates
+  </a>
+  <a href="https://drive.google.com/drive/folders/1bvCC-WbLP2ACuuBZMSzVWGNIQiY3nTus?usp=drive_link" target="_blank" class="tile">
+    <span class="tile-icon">📖</span> Glossary
+  </a>
+</section>
+
+<section class="browse">
+  <h2>Browse by Industry</h2>
+  <div class="filters" id="industryFilters">
+    <button data-industry="All" class="active">All</button>
+    <button data-industry="Manufacturing">Manufacturing</button>
+    <button data-industry="Hospitality">Hospitality</button>
+    <button data-industry="NGO">NGO</button>
+    <button data-industry="Public Sector">Public Sector</button>
+    <button data-industry="Internal">Internal</button>
+  </div>
+  <div class="grid" id="docGrid"></div>
+</section>
+
+<section class="projects">
+  <h2>Open Projects</h2>
+  <p class="legend">
+    <span class="dot green"></span> OK — closed or on track &nbsp;&nbsp;
+    <span class="dot yellow"></span> WATCH — completed 8–14 days ago, closure due soon &nbsp;&nbsp;
+    <span class="dot red"></span> OVERDUE — completed 14+ days ago, needs closure now
+  </p>
+  <div id="projectList"></div>
+</section>
+
+<section class="submit">
+  <h2>Submit a Document to KMS</h2>
+  <iframe
+    src="https://docs.google.com/forms/d/e/1FAIpQLSeFsC1gWmNp64YWYN5zAhoh4xQCBHsCIBJHbOnxNOioX2eNMA/viewform?embedded=true"
+    width="100%"
+    height="900"
+    frameborder="0">
+    Loading form…
+  </iframe>
+</section>
+
+<footer class="site-footer">
+  <p>Goldenmuv Premium Consulting Limited · gmpc.pms@gmail.com</p>
+  <p id="lastUpdated"></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
