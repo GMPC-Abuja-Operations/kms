@@ -31,7 +31,7 @@ async function loadRegistry() {
     const rows = parseGviz(text);
 
     allDocs = rows
-      .filter(r => r[1]) // has Document Name
+      .filter(r => r[1] && r[1] !== "Document Name") // has real Document Name, not header leakage
       .map(r => ({
         timestamp: r[0],
         name: r[1],
