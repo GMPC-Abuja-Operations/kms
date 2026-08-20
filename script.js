@@ -281,8 +281,9 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
       status.textContent = "✅ Registered as " + result.projectId;
       setTimeout(() => { closeModal("registerModal"); loadProjects(); }, 1500);
     } else {
-      status.textContent = "❌ Error: " + result.error;
-    }
+  status.innerHTML = `⚠️ <strong>Action needed:</strong> ${result.error}`;
+  status.style.color = "#8B6F47"; // brown, not alarm-red — this is guidance, not a system failure
+}
   } catch (err) {
     status.textContent = "❌ Network error: " + err.message;
   }
