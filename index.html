@@ -9,22 +9,25 @@
 <body>
 
 <header class="site-header">
-  <a href="https://drive.google.com/drive/folders/16aPznLQzutd-z3jIolPgyfn3ZZUjdCU2?usp=sharing" target="_blank" class="logo">Goldenmuv <span>Knowledge Management System</span></a>
+  <a href="https://drive.google.com/drive/u/0/folders/16aPznLQzutd-z3jIolPgyfn3ZZUjdCU2" target="_blank" class="logo">Goldenmuv <span>Knowledge Management System</span></a>
   <input id="searchBar" type="text" placeholder="Search documents..." />
 </header>
 
 <section class="quick-links">
-  <a href="https://drive.google.com/drive/folders/1Vsywoic9_209wm2H-4dVRm2xOQG9b1wl?usp=sharing" target="_blank" class="tile">
+  <a href="https://drive.google.com/drive/u/0/folders/1Vsywoic9_209wm2H-4dVRm2xOQG9b1wl" target="_blank" class="tile">
     <span class="tile-icon">📁</span> Client Archives
   </a>
-  <a href="https://drive.google.com/drive/folders/1nSSYxAl6ejtx4RtRtciQKyXOXOywjCJh?usp=drive_link" target="_blank" class="tile">
+  <a href="https://drive.google.com/drive/u/0/folders/1nSSYxAl6ejtx4RtRtciQKyXOXOywjCJh" target="_blank" class="tile">
     <span class="tile-icon">📚</span> Thematic Knowledge
   </a>
-  <a href="https://drive.google.com/drive/folders/11PaQcyrYdNMJcCXUPOLlkIk1cdUHpLc-?usp=drive_link" target="_blank" class="tile">
+  <a href="https://drive.google.com/drive/u/0/folders/11PaQcyrYdNMJcCXUPOLlkIk1cdUHpLc-" target="_blank" class="tile">
     <span class="tile-icon">🗂</span> Templates
   </a>
-  <a href="https://drive.google.com/drive/folders/1bvCC-WbLP2ACuuBZMSzVWGNIQiY3nTus?usp=drive_link" target="_blank" class="tile">
+  <a href="https://drive.google.com/drive/u/0/folders/1bvCC-WbLP2ACuuBZMSzVWGNIQiY3nTus" target="_blank" class="tile">
     <span class="tile-icon">📖</span> Glossary
+  </a>
+  <a href="https://drive.google.com/drive/u/0/folders/1H9WwfzME1eqPentCYvFpuERXLd5oi5eL" target="_blank" class="tile">
+    <span class="tile-icon">🎓</span> Open Trainings
   </a>
 </section>
 
@@ -42,28 +45,133 @@
 </section>
 
 <section class="projects">
-  <h2>Open Projects</h2>
+  <h2>Pipeline (Won — Awaiting Workplan)</h2>
+  <div id="pipelineList"></div>
+
+  <h2>Active Projects</h2>
   <p class="legend">
-    <span class="dot green"></span> OK: closed or on track &nbsp;&nbsp;
-    <span class="dot yellow"></span> WATCH: completed 8–14 days ago, closure due soon &nbsp;&nbsp;
-    <span class="dot red"></span> OVERDUE: completed 14+ days ago, needs closure now
+    <span class="dot green"></span> OK &nbsp;&nbsp;
+    <span class="dot yellow"></span> WATCH (8–14 days since completed) &nbsp;&nbsp;
+    <span class="dot red"></span> OVERDUE (14+ days)
   </p>
-  <div id="projectList"></div>
+  <div id="activeList"></div>
 </section>
 
-<section class="submit">
-  <h2>Submit a Document to KMS</h2>
-  <iframe
-    src="https://docs.google.com/forms/d/e/1FAIpQLSeFsC1gWmNp64YWYN5zAhoh4xQCBHsCIBJHbOnxNOioX2eNMA/viewform?embedded=true"
-    width="100%"
-    height="900"
-    frameborder="0">
-    Loading form…
-  </iframe>
+<section class="actions">
+  <button class="action-btn" id="openSubmitBtn">📤 Submit a Document</button>
+  <button class="action-btn" id="openRegisterBtn">📋 Register a Workplan</button>
 </section>
+
+<!-- SUBMIT DOCUMENT MODAL -->
+<div class="modal-overlay" id="submitModal">
+  <div class="modal">
+    <button class="modal-close" data-close="submitModal">✕</button>
+    <h3>Submit a Document to KMS</h3>
+    <form id="submitForm">
+      <label>Document Name
+        <input type="text" id="sf_docName" required placeholder="YYYYMMDD_ProjectName_DocType_V#">
+      </label>
+
+      <label>Document Type
+        <select id="sf_docType" required>
+          <option value="">-- Select --</option>
+          <option>Lessons Learned</option>
+          <option>Case Study</option>
+          <option>Report</option>
+          <option>Framework</option>
+          <option>Methodology</option>
+          <option>Toolkit</option>
+          <option>Benchmark</option>
+          <option>Industry Profile</option>
+          <option>Question Bank</option>
+          <option>Slide</option>
+          <option>Competitor Profile</option>
+          <option>Regulatory Reference</option>
+          <option>Glossary Entry</option>
+          <option>Training Material</option>
+          <option>Training Report</option>
+        </select>
+      </label>
+
+      <label id="sf_projectNameWrap" style="display:none;">
+        Project Name (as shown on dashboard)
+        <input type="text" id="sf_projectName" placeholder="e.g. Acme Manufacturing – Org Diagnostic">
+      </label>
+
+      <label id="sf_trainingWrap" style="display:none;">
+        Training Program
+        <select id="sf_training"></select>
+      </label>
+
+      <label>Upload File
+        <input type="file" id="sf_file" required>
+      </label>
+
+      <label>Industry Tags</label>
+      <div class="checkbox-group" id="sf_industry">
+        <label><input type="checkbox" value="Manufacturing"> Manufacturing</label>
+        <label><input type="checkbox" value="Hospitality"> Hospitality</label>
+        <label><input type="checkbox" value="NGO"> NGO</label>
+        <label><input type="checkbox" value="Public Sector"> Public Sector</label>
+        <label><input type="checkbox" value="Internal"> Internal</label>
+      </div>
+
+      <label>Service Line</label>
+      <div class="checkbox-group" id="sf_serviceLine">
+        <label><input type="checkbox" value="Diagnostics"> Diagnostics</label>
+        <label><input type="checkbox" value="Training"> Training</label>
+        <label><input type="checkbox" value="HR Policy"> HR Policy</label>
+        <label><input type="checkbox" value="Strategy"> Strategy</label>
+        <label><input type="checkbox" value="BPO"> BPO</label>
+        <label><input type="checkbox" value="Digital"> Digital</label>
+        <label><input type="checkbox" value="Other"> Other</label>
+      </div>
+
+      <label>Confidence Level
+        <select id="sf_confidence" required>
+          <option value="">-- Select --</option>
+          <option>Draft</option>
+          <option>Reviewed</option>
+          <option>Approved</option>
+        </select>
+      </label>
+
+      <label>Submitted By
+        <input type="text" id="sf_submittedBy" required>
+      </label>
+
+      <button type="submit" class="submit-btn">Submit</button>
+      <p id="sf_status"></p>
+    </form>
+  </div>
+</div>
+
+<!-- REGISTER WORKPLAN MODAL -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <button class="modal-close" data-close="registerModal">✕</button>
+    <h3>Register a Workplan</h3>
+    <form id="registerForm">
+      <label>Project Lead Name
+        <input type="text" id="rf_lead" required>
+      </label>
+      <label>Workplan Google Sheet Link
+        <input type="text" id="rf_link" required placeholder="Paste from address bar">
+      </label>
+      <label>Progress/Health Cell Reference
+        <input type="text" id="rf_cell" required placeholder="e.g. B5">
+      </label>
+      <label>Related Proposal ID (optional)
+        <input type="text" id="rf_proposal" placeholder="PROP-XXXXXXXX">
+      </label>
+      <button type="submit" class="submit-btn">Register</button>
+      <p id="rf_status"></p>
+    </form>
+  </div>
+</div>
 
 <footer class="site-footer">
-  <p>Goldenmuv Premium Consulting Limited · gmpc.pms@gmail.com</p>
+  <p>KM Lead · gmpc.pms@gmail.com</p>
   <p id="lastUpdated"></p>
 </footer>
 
