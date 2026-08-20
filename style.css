@@ -186,3 +186,120 @@ h2 {
   border-top: 1px solid var(--border-subtle);
   margin-top: 20px;
 }
+
+.actions {
+  display: flex;
+  gap: 16px;
+  padding: 24px 32px;
+  flex-wrap: wrap;
+}
+.action-btn {
+  background: var(--brown-deep);
+  color: var(--white);
+  border: none;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.action-btn:hover { background: var(--gold); }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 28px;
+  width: 90%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal h3 { color: var(--brown-deep); margin-top: 0; }
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--ink-light);
+}
+
+.modal form label {
+  display: block;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.modal form input[type="text"],
+.modal form select,
+.modal form input[type="file"] {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 4px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  font-size: 14px;
+}
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+.checkbox-group label {
+  font-weight: 400;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0;
+}
+
+.submit-btn {
+  margin-top: 18px;
+  background: var(--gold);
+  color: var(--white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.submit-btn:hover { background: var(--brown-deep); }
+
+.pipeline-row, .project-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.project-actions { display: flex; gap: 8px; }
+.report-btn {
+  background: var(--brown-light);
+  color: var(--white);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
