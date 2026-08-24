@@ -148,7 +148,7 @@ function renderProjects(projects) {
         <div class="project-row">
           <div class="project-info">
             <strong>${flagDot(p.flag)} ${p.name} (${p.id})</strong>
-            <span>${p.type} · ${p.status} · Progress: <span class="progress-percent">${p.progress}</span></span>
+            <span>${p.type} · ${p.status} · Progress: <span class="progress-percent">${p.progress}%</span></span>
           </div>
           <div class="project-actions">
             <button class="report-btn" onclick="openSubmitPanel('${p.name.replace(/'/g, "\\'")}')">Submit Report</button>
