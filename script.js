@@ -289,24 +289,6 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
   }
 });
 
-#signInBar {
-  padding: 12px 32px;
-  background: var(--warm-gray);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-#userTierBadge {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--brown-deep);
-  background: var(--gold-wash);
-  padding: 4px 10px;
-  border-radius: 12px;
-}
-.gated-hidden { display: none !important; }
-
 // -------- Init --------
 loadRegistry();
 loadProjects();
