@@ -15,6 +15,7 @@ const ROLES_SHEET_ID = "1K9--3ftaJHgJdp-QMFykMPdt2HXfFMT0iJLnupZ_ei4";
 const ROLES_TAB = "Roles";
 
 let currentUserTier = "Foundational"; // default: most restricted, until sign-in completes
+let allCategories = [];
 // =====================================================================
 
 let allDocs = [];
@@ -204,47 +205,89 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 document.getElementById("openRegisterBtn").addEventListener("click", () => openModal("registerModal"));
 document.getElementById("openSubmitBtn").addEventListener("click", () => openSubmitPanel(null));
 
+async function loadCategories() {
+  const res = await fetch(`${WEBAPP_URL}?action=getCategories`);
+  const data = await res.json();
+  allCategories = data.categories;
+}
+
 async function openSubmitPanel(prefilledProjectName) {
   openModal("submitModal");
+  await loadCategories();
+
+  const typeSelect = document.getElementById("sf_docType");
   const projWrap = document.getElementById("sf_projectNameWrap");
   const projInput = document.getElementById("sf_projectName");
-  const typeSelect = document.getElementById("sf_docType");
+
+  const visibleCategories = allCategories.filter(c => c[currentUserTier.toLowerCase()]);
+
+  typeSelect.innerHTML = visibleCategories
+    .map(c => `<option value="${c.documentType}">${c.documentType}</option>`).join("");
 
   if (prefilledProjectName) {
     typeSelect.value = "Report";
+    typeSelect.disabled = true;
     projInput.value = prefilledProjectName;
     projWrap.style.display = "block";
-    typeSelect.disabled = true;
   } else {
     typeSelect.disabled = false;
     projInput.value = "";
   }
 
-  await loadTrainingDropdown();
-  toggleConditionalFields();
+  typeSelect.onchange = () => handleTypeChange(prefilledProjectName);
+  handleTypeChange(prefilledProjectName);
 }
 
-document.getElementById("sf_docType").addEventListener("change", toggleConditionalFields);
-
-function toggleConditionalFields() {
+async function handleTypeChange(prefilledProjectName) {
   const type = document.getElementById("sf_docType").value;
-  document.getElementById("sf_projectNameWrap").style.display =
-    (type === "Report") ? "block" : "none";
-  document.getElementById("sf_trainingWrap").style.display =
-    (type === "Training Material" || type === "Training Report") ? "block" : "none";
-}
+  const config = allCategories.find(c => c.documentType === type);
 
-async function loadTrainingDropdown() {
-  try {
-    const res = await fetch(`${WEBAPP_URL}?action=getTrainingFolders`);
-    const data = await res.json();
-    const select = document.getElementById("sf_training");
-    select.innerHTML = data.folders.map(f => `<option>${f}</option>`).join("")
-      + `<option value="__new__">+ New Training Program</option>`;
-  } catch (e) {
-    console.error("Could not load training folders", e);
+  document.getElementById("sf_projectNameWrap").style.display =
+    (type === "Report" || prefilledProjectName) ? "block" : "none";
+
+  const subWrap = document.getElementById("sf_subWrap");
+  if (config && config.routingType === "Dynamic") {
+    subWrap.style.display = "block";
+    document.getElementById("sf_subLabel").textContent = config.subSelectionLabel + ":";
+    await loadSubfolders(config.rootFolderId);
+  } else {
+    subWrap.style.display = "none";
   }
 }
+
+async function loadSubfolders(rootFolderId) {
+  const res = await fetch(`${WEBAPP_URL}?action=getSubfolders&folderId=${rootFolderId}`);
+  const data = await res.json();
+  const select = document.getElementById("sf_subSelect");
+  select.innerHTML = data.folders.map(f => `<option>${f}</option>`).join("");
+}
+
+document.getElementById("sf_newLink").addEventListener("click", () => {
+  document.getElementById("sf_subSelect").style.display = "none";
+  document.getElementById("sf_newInput").style.display = "block";
+  document.getElementById("sf_newInput").focus();
+});
+
+document.getElementById("sf_newInput").addEventListener("keydown", async (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const name = e.target.value.trim();
+  if (!name) return;
+
+  const type = document.getElementById("sf_docType").value;
+  const config = allCategories.find(c => c.documentType === type);
+
+  await fetch(WEBAPP_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "createSubfolder", rootFolderId: config.rootFolderId, name })
+  });
+
+  await loadSubfolders(config.rootFolderId);
+  document.getElementById("sf_subSelect").value = name;
+  document.getElementById("sf_subSelect").style.display = "block";
+  document.getElementById("sf_newInput").style.display = "none";
+  document.getElementById("sf_newInput").value = "";
+});
 
 function fileToBase64(file) {
   return new Promise((resolve) => {
@@ -277,11 +320,12 @@ document.getElementById("submitForm").addEventListener("submit", async (e) => {
     fileBase64,
     fileName: file.name,
     mimeType: file.type,
-    trainingName: document.getElementById("sf_training").value,
-    projectName: document.getElementById("sf_projectName").value,
-    isReport: document.getElementById("sf_docType").value === "Report"
+    subfolderName: document.getElementById("sf_subSelect").style.display !== "none"
+      ? document.getElementById("sf_subSelect").value
+      : "",
+    projectName: document.getElementById("sf_projectName").value
   };
-
+  
   try {
     const res = await fetch(WEBAPP_URL, { method: "POST", body: JSON.stringify(payload) });
     const result = await res.json();
@@ -329,6 +373,7 @@ function parseJwt(token) {
 }
 
 async function handleSignIn(response) {
+  lastIdToken = response.credential;
   const payload = parseJwt(response.credential);
   const email = payload.email;
 
@@ -356,8 +401,58 @@ function applyRoleFiltering() {
   document.getElementById("projectsSection").classList.toggle("gated-hidden", !canSeeProjects);
   document.getElementById("openRegisterBtn").classList.toggle("gated-hidden", !canSeeProjects);
   document.getElementById("clientArchivesTile").classList.toggle("gated-hidden", !canSeeProjects);
-  renderDocs(allDocs); // re-apply document visibility rules immediately
+  document.getElementById("openAdminBtn").classList.toggle("gated-hidden", currentUserTier !== "Leader");
+  renderDocs(allDocs);
 }
+
+document.getElementById("openAdminBtn").addEventListener("click", () => openModal("adminModal"));
+
+document.getElementById("af_routingType").addEventListener("change", (e) => {
+  document.getElementById("af_subLabelWrap").style.display =
+    e.target.value === "Dynamic" ? "block" : "none";
+});
+
+document.getElementById("af_folderMode").addEventListener("change", (e) => {
+  const isNew = e.target.value === "new";
+  document.getElementById("af_newFolderWrap").style.display = isNew ? "block" : "none";
+  document.getElementById("af_existingFolderWrap").style.display = isNew ? "none" : "block";
+});
+
+let lastIdToken = null; // captured at sign-in
+
+document.getElementById("adminForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("af_status");
+  status.textContent = "Creating category...";
+
+  const payload = {
+    action: "addCategory",
+    idToken: lastIdToken,
+    documentType: document.getElementById("af_docType").value,
+    routingType: document.getElementById("af_routingType").value,
+    subSelectionLabel: document.getElementById("af_subLabel").value,
+    folderMode: document.getElementById("af_folderMode").value,
+    parentFolderLink: document.getElementById("af_parentLink").value,
+    newFolderName: document.getElementById("af_newFolderName").value,
+    existingFolderLink: document.getElementById("af_existingLink").value,
+    tierFoundational: document.getElementById("af_foundational").checked,
+    tierPractitioner: document.getElementById("af_practitioner").checked,
+    tierLeader: document.getElementById("af_leader").checked
+  };
+
+  try {
+    const res = await fetch(WEBAPP_URL, { method: "POST", body: JSON.stringify(payload) });
+    const result = await res.json();
+    if (result.success) {
+      status.textContent = "✅ Category created!";
+      setTimeout(() => closeModal("adminModal"), 1500);
+    } else {
+      status.textContent = "❌ " + result.error;
+    }
+  } catch (err) {
+    status.textContent = "❌ Network error: " + err.message;
+  }
+});
 
 // -------- Init --------
 loadRegistry();
