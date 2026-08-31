@@ -53,19 +53,34 @@ async function loadRegistry() {
   }
 }
 
-function renderDocs(docs) {
+const TYPE_ACCESS = {
+  "Competitor Profile": ["Leader"]
+  // add more restricted types here later, e.g. "Some Type": ["Practitioner", "Leader"]
+};
+
+function canView(doc) {
+  // Confidence Level check
+  if (doc.confidence === "Draft" && currentUserTier === "Foundational") return false;
+
+  // Document Type check
+  const allowedTiers = TYPE_ACCESS[doc.type];
+  if (allowedTiers && !allowedTiers.includes(currentUserTier)) return false;
+
+  return true;
+}
+
+function renderDocs(docs, isFiltered = false) {
   const grid = document.getElementById("docGrid");
+  const visibleDocs = docs.filter(canView);
 
-  const visibleDocs = docs.filter(d => {
-    if (d.type === "Competitor Profile" && currentUserTier !== "Leader") return false;
-    return true;
-  });
+  const toRender = isFiltered ? visibleDocs : visibleDocs.slice(0, 12);
 
-  if (visibleDocs.length === 0) {
+  if (toRender.length === 0) {
     grid.innerHTML = "<p>No documents found.</p>";
     return;
   }
-  grid.innerHTML = visibleDocs.map(d => `
+
+  grid.innerHTML = toRender.map(d => `
     <div class="card">
       <h3>${d.name}</h3>
       <div>
@@ -76,6 +91,10 @@ function renderDocs(docs) {
       <a href="${d.link}" target="_blank">Open →</a>
     </div>
   `).join("");
+
+  if (!isFiltered && visibleDocs.length > 12) {
+    grid.innerHTML += `<p style="grid-column:1/-1; text-align:center; color:var(--ink-light);">Showing 12 most recent — use search or filters to see more</p>`;
+  }
 }
 
 document.querySelectorAll("#industryFilters button").forEach(btn => {
@@ -84,13 +103,18 @@ document.querySelectorAll("#industryFilters button").forEach(btn => {
     btn.classList.add("active");
     const industry = btn.dataset.industry;
     const filtered = industry === "All" ? allDocs : allDocs.filter(d => d.industry.includes(industry));
-    renderDocs(filtered);
+    renderDocs(filtered, industry !== "All");
   });
 });
 
 document.getElementById("searchBar").addEventListener("input", (e) => {
   const q = e.target.value.toLowerCase();
-  renderDocs(allDocs.filter(d => d.name.toLowerCase().includes(q)));
+  const filtered = allDocs.filter(d =>
+    d.name.toLowerCase().includes(q) ||
+    d.type.toLowerCase().includes(q) ||
+    d.industry.join(" ").toLowerCase().includes(q)
+  );
+  renderDocs(filtered, q.length > 0);
 });
 
 // -------- Projects (Tracker) --------
@@ -328,14 +352,15 @@ async function handleSignIn(response) {
 }
 
 function applyRoleFiltering() {
-  // Progress % — Practitioner and Leader only
-  document.querySelectorAll(".progress-percent").forEach(el => {
-    el.parentElement.style.display =
-      (currentUserTier === "Foundational") ? "none" : "inline";
-  });
+  const canSeeProjects = (currentUserTier === "Practitioner" || currentUserTier === "Leader");
+  document.getElementById("projectsSection").classList.toggle("gated-hidden", !canSeeProjects);
+  document.getElementById("openRegisterBtn").classList.toggle("gated-hidden", !canSeeProjects);
+  document.getElementById("clientArchivesTile").classList.toggle("gated-hidden", !canSeeProjects);
+  renderDocs(allDocs); // re-apply document visibility rules immediately
 }
 
 // -------- Init --------
 loadRegistry();
 loadProjects();
+applyRoleFiltering(); // ensures default (Foundational) view is locked down immediately
 document.getElementById("lastUpdated").textContent = "Page loaded: " + new Date().toLocaleString();
