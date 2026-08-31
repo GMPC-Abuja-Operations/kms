@@ -70,6 +70,7 @@
 <section class="actions">
   <button class="action-btn" id="openSubmitBtn">📤 Submit a Document</button>
   <button class="action-btn" id="openRegisterBtn">📋 Register a Workplan</button>
+  <button class="action-btn gated-hidden" id="openAdminBtn">⚙️ Add a New Category</button>
 </section>
 
 <!-- SUBMIT DOCUMENT MODAL -->
@@ -83,34 +84,19 @@
       </label>
 
       <label>Document Type
-        <select id="sf_docType" required>
-          <option value="">-- Select --</option>
-          <option>Lessons Learned</option>
-          <option>Case Study</option>
-          <option>Report</option>
-          <option>Framework</option>
-          <option>Methodology</option>
-          <option>Toolkit</option>
-          <option>Benchmark</option>
-          <option>Industry Profile</option>
-          <option>Question Bank</option>
-          <option>Slide</option>
-          <option>Competitor Profile</option>
-          <option>Regulatory Reference</option>
-          <option>Glossary Entry</option>
-          <option>Training Material</option>
-          <option>Training Report</option>
-        </select>
+        <select id="sf_docType" required></select>
+      </label>
+
+      <label id="sf_subWrap" style="display:none;">
+        <span id="sf_subLabel"></span>
+        <select id="sf_subSelect"></select>
+        <span id="sf_newLink" class="new-link">+ New</span>
+        <input type="text" id="sf_newInput" style="display:none;" placeholder="Type new name, press Enter">
       </label>
 
       <label id="sf_projectNameWrap" style="display:none;">
         Project Name (as shown on dashboard)
         <input type="text" id="sf_projectName" placeholder="e.g. Acme Manufacturing – Org Diagnostic">
-      </label>
-
-      <label id="sf_trainingWrap" style="display:none;">
-        Training Program
-        <select id="sf_training"></select>
       </label>
 
       <label>Upload File
@@ -152,6 +138,55 @@
 
       <button type="submit" class="submit-btn">Submit</button>
       <p id="sf_status"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ADD CATEGORY MODAL (Leader only) -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <button class="modal-close" data-close="adminModal">✕</button>
+    <h3>Add a New Category</h3>
+    <form id="adminForm">
+      <label>Document Type Name
+        <input type="text" id="af_docType" required placeholder="e.g. Onboarding Guide">
+      </label>
+      <label>Routing Type
+        <select id="af_routingType" required>
+          <option value="Fixed">Fixed (one folder for everything)</option>
+          <option value="Dynamic">Dynamic (subfolder per entry, e.g. per person/month)</option>
+        </select>
+      </label>
+      <label id="af_subLabelWrap" style="display:none;">
+        Sub-Selection Label (shown to user)
+        <input type="text" id="af_subLabel" placeholder="e.g. Which Webinar">
+      </label>
+
+      <label>Folder Setup
+        <select id="af_folderMode">
+          <option value="new">Create a brand-new folder</option>
+          <option value="existing">Use an existing folder</option>
+        </select>
+      </label>
+      <label id="af_newFolderWrap">
+        Parent Folder Link (where the new folder goes) + New Folder Name
+        <input type="text" id="af_parentLink" placeholder="Paste parent folder link">
+        <input type="text" id="af_newFolderName" placeholder="New folder name" style="margin-top:6px;">
+      </label>
+      <label id="af_existingFolderWrap" style="display:none;">
+        Existing Folder Link
+        <input type="text" id="af_existingLink" placeholder="Paste folder link">
+      </label>
+
+      <label>Visible To</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="af_foundational" checked> Foundational</label>
+        <label><input type="checkbox" id="af_practitioner" checked> Practitioner</label>
+        <label><input type="checkbox" id="af_leader" checked> Leader</label>
+      </div>
+
+      <button type="submit" class="submit-btn">Create Category</button>
+      <p id="af_status"></p>
     </form>
   </div>
 </div>
