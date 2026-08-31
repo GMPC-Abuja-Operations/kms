@@ -10,6 +10,11 @@ const FORM2_ENTRY_PROJECT_ID = "entry.1971957002";
 const FORM2_ENTRY_PROJECT_NAME = "entry.1670802012";
 
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz64-zqT-QqpQekvfNs5S73AH3vTayWU8f6OHnw9iYU0fYk58JXSY1VHHwxfmdCy-LQ/exec";
+
+const ROLES_SHEET_ID = "1K9--3ftaJHgJdp-QMFykMPdt2HXfFMT0iJLnupZ_ei4";
+const ROLES_TAB = "Roles";
+
+let currentUserTier = "Foundational"; // default: most restricted, until sign-in completes
 // =====================================================================
 
 let allDocs = [];
@@ -50,11 +55,17 @@ async function loadRegistry() {
 
 function renderDocs(docs) {
   const grid = document.getElementById("docGrid");
-  if (docs.length === 0) {
+
+  const visibleDocs = docs.filter(d => {
+    if (d.type === "Competitor Profile" && currentUserTier !== "Leader") return false;
+    return true;
+  });
+
+  if (visibleDocs.length === 0) {
     grid.innerHTML = "<p>No documents found.</p>";
     return;
   }
-  grid.innerHTML = docs.map(d => `
+  grid.innerHTML = visibleDocs.map(d => `
     <div class="card">
       <h3>${d.name}</h3>
       <div>
@@ -288,6 +299,41 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     status.textContent = "❌ Network error: " + err.message;
   }
 });
+
+function parseJwt(token) {
+  return JSON.parse(atob(token.split(".")[1]));
+}
+
+async function handleSignIn(response) {
+  const payload = parseJwt(response.credential);
+  const email = payload.email;
+
+  try {
+    const res = await fetch(gvizUrl(ROLES_SHEET_ID, ROLES_TAB));
+    const text = await res.text();
+    const rows = parseGviz(text);
+
+    const match = rows.find(r => String(r[0]).toLowerCase() === email.toLowerCase());
+    currentUserTier = match ? match[1] : "Foundational";
+  } catch (e) {
+    currentUserTier = "Foundational"; // fail safe: most restricted on error
+  }
+
+  document.getElementById("userTierBadge").textContent =
+    `Signed in as ${email} (${currentUserTier})`;
+
+  applyRoleFiltering();
+  renderDocs(allDocs); // re-render with gating now applied
+  renderProjects(allProjects);
+}
+
+function applyRoleFiltering() {
+  // Progress % — Practitioner and Leader only
+  document.querySelectorAll(".progress-percent").forEach(el => {
+    el.parentElement.style.display =
+      (currentUserTier === "Foundational") ? "none" : "inline";
+  });
+}
 
 // -------- Init --------
 loadRegistry();
